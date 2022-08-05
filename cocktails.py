@@ -1,5 +1,5 @@
 """
-Command lind script to find possible cocktails from inputting a list of ingredients
+Command line application to find possible cocktails from inputting a list of ingredients
 """
 
 import requests
