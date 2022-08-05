@@ -1,10 +1,10 @@
 """
-Command line application to find possible cocktails from inputting a list of ingredients
+Command lind script to find possible cocktails from inputting a list of ingredients
 """
 
 import requests
 import argparse
-
+from json.decoder import JSONDecodeError
 
 def get_all_cocktails(ingredients):
     """
@@ -66,11 +66,14 @@ def get_cocktails_by_ingredient(ingredient):
     """
     # Get all cocktails with specific ingredient
     ingredient_url = ingredient.replace(" ", "_")
-    response = requests.get(f"https://thecocktaildb.com/api/json/v1/1/filter.php?i={ingredient_url}")
     cocktails = set()
-    drinks = response.json()['drinks']
-    for item in drinks:
-        cocktails.add((item['strDrink']))
+    try:
+        response = requests.get(f"https://thecocktaildb.com/api/json/v1/1/filter.php?i={ingredient_url}")
+        drinks = response.json()['drinks']
+        for item in drinks:
+            cocktails.add((item['strDrink']))
+    except JSONDecodeError:
+        pass
     return cocktails
 
 
@@ -82,9 +85,10 @@ if __name__ == '__main__':
         args["ingredients"] = [s.strip() for s in args["ingredients"].split(",")]
     ingredients = args["ingredients"]
     cocktails = get_all_cocktails(ingredients)
-    print(f"Your possible cocktails are:")
-    for k, v in cocktails.items():
-        val = ', '.join(str(ingredient) for ingredient in v)
-        print(f"{k}: {val}")
-
-
+    if cocktails:
+        print(f"Your possible cocktails are:")
+        for k, v in cocktails.items():
+            val = ', '.join(str(ingredient) for ingredient in v)
+            print(f"{k}: {val}")
+    else:
+        print("We were unable to find cocktail recommendations with those ingredients")
